@@ -1,118 +1,336 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import { useState } from "react";
+const inter = Inter({ subsets: ["latin"] });
+import { RxCross1 } from "react-icons/rx";
 
 export default function Home() {
+  const [custName, setcustName] = useState("");
+  const [date, setDate] = useState("");
+  const [distanceOfJourney, setDistanceOfJourney] = useState(0);
+  const [acType, setacType] = useState("");
+  const [carType, setcarType] = useState("");
+  const [journeyType, setjourneyType] = useState("");
+  const [isModal, setisModal] = useState(false);
+  const [totalBill, settotalBill] = useState(0);
+
+  const toggleIsModalFalse = () => {
+    setisModal(false);
+    setcustName("");
+    setDate("");
+    setDistanceOfJourney("");
+    setacType("");
+    setcarType("");
+    setjourneyType("");
+  };
+  const generateBill = () => {
+    console.log(custName,
+    date,
+    distanceOfJourney,
+    acType,
+    carType,
+    journeyType)
+    console.log(typeof( distanceOfJourney))
+
+    if (
+      custName != "" &&
+      date != "" &&
+      distanceOfJourney != 0 &&
+      acType != "" &&
+      carType != "" &&
+      journeyType != ""
+    ) {
+      const baseRate = {
+        Micro: { AC: 50, nonAC: 30,upto10:6, next20:5,afterthat:4  },
+        Mini: { AC: 80, nonAC: 60,upto10:7, next20:6,afterthat:5  },
+        Sedan: { AC: 150, nonAC: 100,upto10:8.5, next20:7,afterthat:6  },
+        XUV: { AC: 250, nonAC: 150,upto10:10, next20:8,afterthat:7  },
+      };
+      let total = 0;
+      if (journeyType === "Outstation") {
+        if (carType=="XUV"){
+          total+=100
+        }
+        else if (carType=="Sedan"){
+          total+=80
+        }
+      }
+      console.log(baseRate[carType][acType])
+      total+=baseRate[carType][acType]
+
+      if (distanceOfJourney <= 10) {
+        total += distanceOfJourney * baseRate[carType].upto10;
+      } else if (distanceOfJourney <= 30) {
+        total +=
+          10 * baseRate[carType].upto10 + (distanceOfJourney - 10) * baseRate[carType].next20;
+      } else {
+        total +=
+          10 * baseRate[carType].upto10 +
+          20 * baseRate[carType].next20 +
+          (distanceOfJourney - 30) * baseRate[carType].afterthat;
+      }
+
+      settotalBill(total);
+      setisModal(true);
+    }
+  };
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="bg-gradient-to-tr py-12 from-blue-300 to-cyan-300 h-screen relative">
+      {!isModal && (
+        <div className="mx-auto shadow-xl w-11/12 md:w-1/2 rounded-md bg-white text-center py-4 px-4">
+          <div className="text-4xl font-bold text-blue-600">Taxi Billing</div>
+          <form>
+            <div className=" p-4">
+              <label
+                className="font-bold text-base flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Enter Customer's Name:
+              </label>
+              <input
+                className="px-2 h-10 rounded-sm shadow-[0_0px_5px_0px_rgba(0,0,0,0.1)] w-full"
+                type="text"
+                onChange={(e) => setcustName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className=" p-4">
+              <label
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="date"
+              >
+                Date of travel:
+              </label>
+              <input
+                className="px-2 h-10 rounded-sm shadow-[0_0px_5px_0px_rgba(0,0,0,0.1)] w-full"
+                type="date"
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className=" p-4">
+              <label
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Distance travelled:
+              </label>
+              <input
+                className="px-2 h-10 rounded-sm shadow-[0_0px_5px_0px_rgba(0,0,0,0.1)] w-full"
+                placeholder="in km"
+                type="number"
+                onChange={(e) => setDistanceOfJourney(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex px-4 py-2">
+              <label
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Type of car:
+              </label>
+              <div className="mx-2">
+                <input
+                  type="radio"
+                  name="Car"
+                  value="Micro"
+                  required
+                  className="mr-1"
+                  onChange={(e) => setcarType("Micro")}
+                />{" "}
+                Micro
+              </div>
+              <div className="mx-2">
+                <input
+                  type="radio"
+                  name="Car"
+                  value="Mini"
+                  className="mr-1"
+                  onChange={(e) => setcarType("Mini")}
+                />{" "}
+                Mini
+              </div>
+              <div className="mx-2">
+                <input
+                  type="radio"
+                  name="Car"
+                  value="Sedan"
+                  className="mr-1"
+                  onChange={(e) => setcarType("Sedan")}
+                />{" "}
+                Sedan
+              </div>
+              <div className="mx-2">
+                <input
+                  type="radio"
+                  name="Car"
+                  value="XUV"
+                  className="mr-1"
+                  onChange={(e) => setcarType("XUV")}
+                />{" "}
+                XUV
+              </div>
+            </div>
+
+            <div className="flex px-4 py-2">
+              <label
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Air Conditioning:
+              </label>
+              <div className="mx-2">
+                <input
+                  type="radio"
+                  name="ac"
+                  value="AC"
+                  className="mr-1"
+                  onChange={(e) => setacType("AC")}
+                  required
+                />{" "}
+                AC
+              </div>
+              <div className="mx-2">
+                <input
+                  type="radio"
+                  name="ac"
+                  value="nonAC"
+                  className="mr-1"
+                  onChange={(e) => setacType("nonAC")}
+                />{" "}
+                Non AC
+              </div>
+            </div>
+            <div className="flex px-4 py-2">
+              <label
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Type of Journey:
+              </label>
+              <div className="mx-2">
+                <input
+                  type="radio"
+                  name="Journey"
+                  value="Outstation"
+                  className="mr-1"
+                  disabled={carType !== "XUV" && carType !== "Sedan"}
+                  onChange={(e) => setjourneyType("Outstation")}
+                  required
+                />{" "}
+                Outstation
+              </div>
+              <div className="mx-2">
+                <input
+                  required
+                  type="radio"
+                  name="Journey"
+                  value="Local"
+                  className="mr-1"
+                  onChange={(e) => setjourneyType("Local")}
+                />
+                Local
+              </div>
+            </div>
+            <button
+              className="bg-blue-500 px-4 py-2 my-10 text-white font-medium rounded-xl cursor-pointer"
+              type="submit"
+              onClick={generateBill}
+            >
+              Generate Bill
+            </button>
+          </form>
         </div>
-      </div>
+      )}
+      {isModal && (
+        <div className="h-full">
+          <div className=" mx-auto shadow-xl w-11/12 md:w-1/2 rounded-md bg-white text-center py-4 px-4">
+            <div className="text-4xl mb-4 font-bold text-blue-600">
+              Your bill
+            </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+            <div className="flex px-4 py-2">
+              <p
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Customer Name:
+              </p>
+              <div>{custName}</div>
+            </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+            <div className="flex px-4 py-2">
+              <p
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Date of Travel:
+              </p>
+              <div>{date}</div>
+            </div>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+            <div className="flex px-4 py-2">
+              <p
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Type of Car:
+              </p>
+              <div>{carType}</div>
+            </div>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
+            <div className="flex px-4 py-2">
+              <p
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Type of Journey:
+              </p>
+              <div>{journeyType}</div>
+            </div>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+            <div className="flex px-4 py-2">
+              <p
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Distance of Your Journey:
+              </p>
+              <div>{distanceOfJourney}</div>
+            </div>
+            <div className="flex px-4 py-2">
+              <p
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                AC Type:
+              </p>
+              <div>{acType}</div>
+            </div>
+
+            <div className="flex px-4 py-2">
+              <p
+                className=" text-base font-bold flex items-center mr-8"
+                htmlFor="customer-name"
+              >
+                Total Bill:
+              </p>
+              <div>{totalBill}</div>
+            </div>
+
+            <button
+              className="bg-blue-500 px-4 py-2 my-10 text-white font-medium rounded-xl cursor-pointer"
+              onClick={toggleIsModalFalse}
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
